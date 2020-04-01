@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>		
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      var mjs;
+      url="https://144.91.115.246:5055/tbl";
+      $.getJSON(url, function(json){ mjs = json; console.log('assigned'); show(mjs); });
+      
+      function show(data) { 
+        var tbl = new google.visualization.DataTable();
+        tbl.addColumn('string', 'Name');
+        tbl.addColumn('number', 'Market Cap');
+        tbl.addColumn('string', 'Cap');
+        tbl.addColumn('string', 'P/B');
+        tbl.addColumn('string', 'P/E');
+        tbl.addColumn('string', 'Optionable');
+        tbl.addColumn('string', 'Beta');
+        tbl.addColumn('number', 'Average Daily Volume');
+
+        var arr = new Array();
+        var i;
+        for (i = 0; i < data.length; i++) {
+          arr.push([ data[i]['name'], data[i]['norm_cap'], data[i]['cap'], data[i]['pb'], data[i]['pe'], data[i]['optionable'], data[i]['beta'], data[i]['avl'], ]);
+          //console.log(data['name']);
+        }
+        //alert(arr);
+        tbl.addRows(arr);
+        var options = { title: 'My Chart', };
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(tbl, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+
+      google.charts.load('current', {'packages':['table']});
+      google.charts.setOnLoadCallback();
+
+    </script>
+  </head>
+  <body>
+    <div id="table_div">LOADING</div>
+  </body>
+</html>
