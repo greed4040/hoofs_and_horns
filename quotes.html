@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>		
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+    <script type='text/javascript'>
+        google.charts.load('current', {'packages':['annotatedtimeline']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var mjs;
+            var myParam = location.search.split('=')[1];
+            console.log(myParam);
+            
+            url="https://vmi355260.contaboserver.net:5055/quotes/"+myParam;
+            $.getJSON(url, function(json){ mjs = json; console.log('assigned'); show(mjs, myParam); });
+        }
+
+        function show(data, instrument) { 
+            var tbl = new google.visualization.DataTable();
+            tbl.addColumn('date', 'Date');
+            tbl.addColumn('number', 'Price');
+            
+            var arr = new Array();
+            var i;
+            for (i = 0; i < data.length; i++) {
+                var js_date = new Date(data[i]['datetime'] * 1000);
+                if (data[i]['price'] != 0) {
+                    arr.push([ js_date, data[i]['price'], ]);
+                }
+            }
+            //console.log(arr[0]);
+            
+            tbl.addRows(arr);
+            var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+            chart.draw(tbl, {displayAnnotations: true});
+            document.getElementById('chart_title').innerHTML=instrument;
+        }
+    </script>
+  </head>
+
+  <body>
+    <div id='chart_title'></div>
+    <div id='chart_div' style='width: 700px; height: 240px;'></div>
+  </body>
+</html>
