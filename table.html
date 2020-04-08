@@ -29,6 +29,17 @@
             tbl.addColumn('number', 'Change');
             tbl.addColumn('number', 'Pcg');
             tbl.addColumn('date', 'Date');
+            tbl.addColumn('string', '5 rs');
+            tbl.addColumn('string', '5 fl');
+            tbl.addColumn('string', '30 rs');
+            tbl.addColumn('string', '30 fl');
+            tbl.addColumn('string', '90 rs');
+            tbl.addColumn('string', '90 fl');
+            tbl.addColumn('string', '180 rs');
+            tbl.addColumn('string', '180 fl');
+            tbl.addColumn('string', '360 rs');
+            tbl.addColumn('string', '360 fl');
+            
             
             var arr = new Array();
             var i;
@@ -52,6 +63,16 @@
                           Number(data[key]['chng']),
                           (Number(data[key]['chng'])/Number(data[key]['prevd_cl']))*100,
                           js_date,
+                          data[key]['5rs'],
+                          data[key]['5fl'],
+                          data[key]['30rs'],
+                          data[key]['30fl'],
+                          data[key]['90rs'],
+                          data[key]['90fl'],
+                          data[key]['180rs'],
+                          data[key]['180fl'],
+                          data[key]['360rs'],
+                          data[key]['360fl'],
                          ]);
             }
             //console.log(data);
@@ -77,6 +98,11 @@
                 var dd = tbl.getValue(i, 11);
                 tbl.setCell(i, 11, dd.toFixed(2), dd.toFixed(2), {style: 'background-color: #660000;font-style:bold; font-size:14px;color: #ffaaaa;'});
               }
+              for (j = 13; j < 23; j++) {
+              if ( tbl.getValue(i, j) == 1 ) {
+                    tbl.setCell(i, j , '', '', {style: 'background-color: #CCCCCC;'}); } else { tbl.setCell(i, j , '', ''); };
+              };
+
               i+=1;
             };
             var table = new google.visualization.Table(document.getElementById('table_div'));
