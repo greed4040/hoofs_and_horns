@@ -2,6 +2,7 @@ import redis
 import json
 from operator import itemgetter
 from datetime import datetime
+import logging
 
 def human_date(ts):
     return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
@@ -41,7 +42,9 @@ def interval_info(old_data, latst_qt):
             
     return answer
 
+logging.basicConfig(filename="process_quotes.log", level=logging.INFO)
 db=redis.Redis(host='127.0.0.1', charset="utf-8", decode_responses=True, db=1)
+logging.info("starting script message")
 
 keys = db.keys("*hist")
 for the_key in keys:
@@ -121,3 +124,4 @@ for the_key in keys:
     #    print(w)
     
     #break
+logging.info("finished message")
