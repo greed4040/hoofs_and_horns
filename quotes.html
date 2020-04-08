@@ -4,6 +4,8 @@
     <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
     <script type='text/javascript'>
         google.charts.load('current', {'packages':['annotatedtimeline']});
+        google.charts.load('current', {'packages':['table']});
+        //google.charts.load('current', {'packages':['line']});
         google.charts.setOnLoadCallback(drawChart);
         function drawChart() {
             var mjs;
@@ -28,11 +30,49 @@
                 }
             }
             //console.log(arr[0]);
-            
+    
             tbl.addRows(arr);
+            
+            var monthYearFormatter = new google.visualization.DateFormat({pattern: 'dd-MMM HH:mm:ss', timeZone: -4});
+            monthYearFormatter.format(tbl, 0);
+            tbl.sort({ column: 0, desc: true });
+            
             var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
             chart.draw(tbl, {displayAnnotations: true});
             document.getElementById('chart_title').innerHTML=instrument;
+
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            table.draw(tbl, {showRowNumber: true, allowHtml: true, width: '100%', height: '100%'});
+            
+            var url="https://vmi355260.contaboserver.net:5055/quotes_hist/"+instrument;
+            $.getJSON(url, function(json){ mjs = json; console.log('assigned'); show_historical(mjs, instrument); });
+        }
+        function show_historical(data) {
+            //console.log(data);
+            var tbl = new google.visualization.DataTable();
+            tbl.addColumn('date', 'Date');
+            tbl.addColumn('number', 'Open');
+            tbl.addColumn('number', 'Close');
+            tbl.addColumn('number', 'High');
+            tbl.addColumn('number', 'Low');
+            
+            var arr = new Array();
+            var i;
+            for (i = 0; i < data.length; i++) {
+                var js_date = new Date(data[i]['dt'] * 1000);
+                if (data[i]['price'] != 0) {
+                    arr.push([ js_date, data[i]['cl'], data[i]['op'], data[i]['hi'], data[i]['lo']]);
+                }
+            }
+            tbl.addRows(arr);
+            
+            var monthYearFormatter = new google.visualization.DateFormat({pattern: 'dd-MMM HH:mm:ss', timeZone: -4});
+            monthYearFormatter.format(tbl, 0);
+            tbl.sort({ column: 0, desc: true });
+            
+            var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_hist'));
+            chart.draw(tbl, {displayAnnotations: true});
+            
         }
     </script>
   </head>
@@ -40,5 +80,7 @@
   <body>
     <div id='chart_title'></div>
     <div id='chart_div' style='width: 700px; height: 240px;'></div>
+    <div id='table_div' style='width: 300px; height: 240px;'></div>
+    <div id='chart_div_hist' style='width: 700px; height: 240px;'></div>
   </body>
 </html>

@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>		
+    <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+    <script type='text/javascript'>
+        google.charts.load('current', {'packages':['annotatedtimeline']});
+        google.charts.load('current', {'packages':['table']});
+        
+        google.charts.setOnLoadCallback(drawChart);
+        
+        function drawChart() {
+            var mjs;
+            url="https://vmi355260.contaboserver.net:5055/chartkeys";
+            $.getJSON(url, function(json){ mjs = json; console.log('assigned'); show(mjs); });
+        }
+
+        function show(data) { 
+            var tbl = new google.visualization.DataTable();
+            tbl.addColumn('string', 'Name');
+            tbl.addColumn('number', 'Market Cap');
+            tbl.addColumn('string', 'Cap');
+            tbl.addColumn('string', 'P/B');
+            tbl.addColumn('string', 'P/E');
+            tbl.addColumn('string', 'Optionable');
+            tbl.addColumn('string', 'Beta');
+            tbl.addColumn('number', 'Average Daily Volume');
+            tbl.addColumn('number', 'Previous close');
+            tbl.addColumn('number', 'Last DB price');
+            tbl.addColumn('number', 'Change');
+            tbl.addColumn('number', 'Pcg');
+            tbl.addColumn('date', 'Date');
+            
+            var arr = new Array();
+            var i;
+            for (var key in data) {
+                var js_date = new Date(data[key]['ltstdt'] * 1000);
+                //console.log(js_date);
+                //console.log(key, data[key]['norm_cap'], typeof(data[key]['norm_cap']), isNan(data[key]['norm_cap']));
+                //if (typeof data[key]['norm_cap'] === 'string' || data[key]['norm_cap'] instanceof String) {
+                var nm = "<a href='https://vmi355260.contaboserver.net/quotes.html?instrument="+key+"'>"+key+"</a>";
+                arr.push([
+                          nm,
+                          Number(data[key]['norm_cap']),
+                          data[key]['cap'],
+                          data[key]['pb'],
+                          data[key]['pe'],
+                          data[key]['optionable'],
+                          data[key]['beta'],
+                          Number(data[key]['avl']),
+                          Number(data[key]['prevd_cl']),
+                          Number(data[key]['ltst']),
+                          Number(data[key]['chng']),
+                          (Number(data[key]['chng'])/Number(data[key]['prevd_cl']))*100,
+                          js_date,
+                         ]);
+            }
+            //console.log(data);
+            
+            tbl.addRows(arr);
+            
+            var monthYearFormatter = new google.visualization.DateFormat({pattern: 'dd-MMM HH:mm:ss', timeZone: -4});
+            monthYearFormatter.format(tbl, 12);
+            
+            i=0;
+            for (var key in data) {
+              var ppcg = (Number(data[key]['chng'])/Number(data[key]['prevd_cl']))*100;
+              if ( ppcg >=5 ) {
+                //console.log(ppcg);
+              
+                //tbl.setProperty(i, 11, 'style', 'background-color: green;');
+                var dd = tbl.getValue(i, 11);
+                //console.log(dd);
+                //tbl.setProperty(0, 10, 'style', 'color: #7b7b7b;');
+                tbl.setCell(i, 11, dd.toFixed(2), dd.toFixed(2), {style: 'background-color: #119911;font-style:bold; font-size:14px;color: #aaFFaa;'});
+              }
+              if ( ppcg <=-5 ) {
+                var dd = tbl.getValue(i, 11);
+                tbl.setCell(i, 11, dd.toFixed(2), dd.toFixed(2), {style: 'background-color: #660000;font-style:bold; font-size:14px;color: #ffaaaa;'});
+              }
+              i+=1;
+            };
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            table.draw(tbl, {showRowNumber: true, allowHtml: true, width: '100%', height: '100%', displayAnnotations: true});
+        }
+    </script>
+  </head>
+
+  <body>
+    <div id='table_div' style='width: 100%; height: 100%;'></div>
+  </body>
+</html>
